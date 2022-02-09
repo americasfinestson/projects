@@ -1,0 +1,115 @@
+---
+
+- hosts: "{{ run_hosts }}"
+  become: True
+  gather_facts: True
+  vars_prompt:
+  
+    - name: rpm_name
+      prompt: What would you like the RPM to be named?
+      private: False
+
+  tasks:
+
+    - set_fact:
+        rpm_build_dirs:
+          - "{{ playbook_dir }}/BUILD"
+          - "{{ playbook_dir }}/BUILDROOT"
+          - "{{ playbook_dir }}/RPMS"
+          - "{{ playbook_dir }}/SOURCES"
+          - "{{ playbook_dir }}/SPECS"
+          - "{{ playbook_dir }}/SRPMS"
+
+    - name: Create RPM build directories
+      file:
+        path: "{{ item }}
+        owner: root
+        group: root
+        mode: 0700
+        state: directory
+      loop:
+        - "{{ rpm_build_dirs }}"
+    
+    - name: Remove existing ~/rpmbuild
+      file:
+        path: '~/rpmbuild'
+        state: absent
+
+    - name: Symlink current working directory to ~/rpmbuild
+      file:
+        src: "{{ playbook_dir }}"
+        dest: '~/rpmbuild'
+
+    - name: Synchronize current working directory into RPM build directory
+      synchronize:
+        src: "{{ playbook_dir }}"
+        dest: './BUILD/'
+        recursive: True
+        rsync_opts:
+          - "--exclude=.git"
+
+    - name: Create RPM spec file
+      copy:
+        dest: "{{ playbook_dir }}/SPECS/specfile.spec"
+        owner: root
+        group: root
+        mode: 0644
+        content: |
+          Name: {{ rpm_name }}
+          Version: {{ ansible_date_time['year'] }}
+          Release: {{ ansible_date_time['month'] + ansible_date_time['day'] }}
+          Summary: Awesome RPM created from americasfinestson/create_rpm!
+          License: N/A
+          Requires:
+          
+          
+          %description
+          Incredibly awesome RPM created from Josh's public Github
+          
+          
+          %prep
+          
+          
+          %build
+          
+          
+          %install
+          mkdir -p %{buildroot}/scripts
+          rsync -ap * %{buildroot}/scripts
+          exit 0
+          
+          
+          %post
+          echo "What an awesome RPM installation!"
+          
+          %files
+
+
+    - name: Add all directory contents to files list
+      shell:
+        cmd: |
+          for f in "$(find ./BUILD/ | sed 's/\(\.\/BUILD\/\)\(\)/\/root\/scripts\/\2/g')";
+          do
+            echo "${f}" >> ./SPECS/specfile.spec
+            echo "Added ${f} to spec file!"
+          done
+      register: results_files_added_to_spec
+      changed_when: results_files_added_to_spec.stdout != ''
+      
+    - name: Build RPM
+      shell:
+        cmd: |
+          rpmbuild -ba ./SPECS/specfile.spec
+          
+    - name: Move RPM to current working directory
+      synchronize:
+        src: "{{ playbook_dir }}/RPMS/x86_64/*.rpm"
+        dest: "{{ playbook_dir }}"
+        
+    - name: Cleanup
+      file:
+        path: "{{ item }}
+        state: absent
+      loop:
+        - "{{ rpm_build_dirs }}"
+      
