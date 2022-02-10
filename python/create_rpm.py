@@ -27,7 +27,6 @@ def read_user_input():
     args = parser.parse_args()
 
     if not args.rpm_name:
-    
         sys.exit("ERROR: This script must be called with one argument. Please see the docstring for more information..\n")
 
     return args.rpm_name
@@ -46,6 +45,11 @@ def main():
                 '/SPECS',
                 '/SRPMS' ]
     full_path_rpm_dirs = [cwd + p for p in rpmdirs]
+
+    # Symlink current working directory to ~/rpmbuild
+    if not os.path.islink('~/rpmbuild'):
+        os.symlink('~/rpmbuild', cwd)
+
 
 
 if __name__ == '__main__':
