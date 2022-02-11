@@ -65,7 +65,7 @@ def main():
 
     for host in bot_list:
         bot = Bot(host, username, password)
-        send_commant_to_bot(bot, command)
+        send_command_to_bot(bot, command)
 
 
 if __name__ == '__main__':
