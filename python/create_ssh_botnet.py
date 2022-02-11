@@ -18,7 +18,7 @@ Outputs: Only terminal output
 import getpass
 import pxssh
 
-class Bot:
+class Bot():
 
     def __init__(self, hostname, username, password):
         self.hostname = hostname
