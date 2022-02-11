@@ -52,7 +52,7 @@ def get_user_input():
 
     bot_list = input("Please enter a comma-separated list of IPs or hostnames to try to infect: ")
     username = input("Please enter the username to attempt the SSH connection as: ")
-    password = getpass.getpass("Please enter that username's SSH password: ")
+    password = getpass.getpass("Please enter that user's SSH password: ")
     command = input("Please enter the command you want to try to execute on each bot: ")
 
     return bot_list, username, password, command
@@ -62,7 +62,6 @@ def main():
 
     # Acquire user input
     bot_list, username, password, command = get_user_input()
-    print(bot_list)
 
     for host in bot_list:
         bot = Bot(host, username, password)
