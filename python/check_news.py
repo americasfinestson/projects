@@ -29,7 +29,7 @@ def read_user_input():
     args = parser.parse_args()
 
     if not args.url:
-        sys.exit('ERROR: This script must be called with one argument. Please see the docstring for more information..\n')
+        sys.exit('ERROR: This script must be called with one argument. Please see the docstring for more information.\n')
 
     return args.url
 
@@ -40,15 +40,28 @@ def pull_content(url):
         r = requests.get(url)
     except requests.exceptions.ConnectionError as e:
         sys.exit('Uh oh, it appears the website ' + url + ' is not available at this time!')
+
     if r.ok:
-        return r
+        webpage_html = requests_html.HTML(html=r.text)
+        return webpage_html.html
+
+
+def parse_headlines(html_content):
+
+    headlines = html_content.find('div.article')
+    return headlines
 
 
 def main():
 
+    # Read user input
     url = read_user_input()
-    r = pull_content(url)
-    pprint(r.text)
+
+    # Pull HTML from URL 
+    webpage_html = pull_content(url)
+    # Pull headlines from HTML
+    headlines = parse_headlines(webpage_html)
+    pprint(headlines)
 
 
 if __name__ == '__main__':
