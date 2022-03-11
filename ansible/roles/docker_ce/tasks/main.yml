@@ -1,0 +1,19 @@
+---
+
+- name: docker-ce | Install Docker
+  block:
+
+    - name: docker-ce | Install Docker | Add Docker repo information to apt repo list
+      lineinfile:
+        path: '/etc/apt/sources.list.d/docker.list'
+        line: "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian {{ ansible_distribution_release}} stable"
+        state: present
+        create: True
+
+    - name: docker-ce | Install Docker | Install packages via apt
+      apt:
+        name: "{{ docker_ce_packages }}"
+        state: latest
+
+  when: ansible_distribution == 'Debian'
+

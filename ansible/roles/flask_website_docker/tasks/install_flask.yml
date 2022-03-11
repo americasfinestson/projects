@@ -1,0 +1,7 @@
+---
+
+- name: flask_website_docker | Install Flask | Install pip package
+  pip:
+    name: flask
+    state: present
+
