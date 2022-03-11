@@ -12,10 +12,6 @@ services:
       - type: volume
         source: counter-vol
         target: /code
-  redis:
-    image: "redis:alpine"
-    networks:
-      counter-net:
 
 networks:
   counter-net:

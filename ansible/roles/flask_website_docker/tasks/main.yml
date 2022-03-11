@@ -5,29 +5,34 @@
     name: flask
     state: present
 
-- name: flask_website_docker | Create temp deploy directory
+- name: flask_website_docker | Create deploy directories
   file:
-    path: "{{ app_deploy_path }}"
+    path: "{{ item }}"
     state: directory
+  loop:
+    - "{{ app_deploy_path }}"
+    - "{{ app_deploy_path }}/templates"
+
 
 - name: flask_website_docker | Deploy all config files
   block:
 
     - name: flask_website_docker | Deploy all config files | Copy
       copy:
-        src: "{{ item }}"
-        dest: "{{ app_deploy_path }}"
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
       loop:
-        - 'Dockerfile'
-        - 'requirements.txt'
+        - { 'src': 'docker/Dockerfile', 'dest': "{{ app_deploy_path }}" }
+        - { 'src': 'docker/requirements.txt', 'dest': "{{ app_deploy_path }}" }
+        - { 'src': 'html/index.html', 'dest': "{{ app_deploy_path }}/templates" }
     
     - name: flask_website_docker | Deploy all config files | Template
       template:
-        src: "{{ item }}"
-        dest: "{{ app_deploy_path }}"
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
       loop:
-        - 'app.py'
-        - 'docker-compose.yml'
+        - { 'src': 'docker/app.py', 'dest': "{{ app_deploy_path }}" }
+        - { 'src': 'docker/docker-compose.yml', 'dest': "{{ app_deploy_path }}" }
 
 - name: flask_website_docker | Run the app
   shell:

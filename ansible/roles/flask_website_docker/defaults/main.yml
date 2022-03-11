@@ -2,5 +2,5 @@
 
 app_deploy_path: '/tmp/docker'
 app_network: '0.0.0.0'
-app_published_port: '5050'
+app_published_port: '5678'
 
