@@ -12,6 +12,7 @@
   loop:
     - "{{ app_deploy_path }}"
     - "{{ app_deploy_path }}/templates"
+    - "{{ app_deploy_path }}/static"
 
 
 - name: flask_website_docker | Deploy all config files
@@ -25,6 +26,7 @@
         - { 'src': 'docker/Dockerfile', 'dest': "{{ app_deploy_path }}" }
         - { 'src': 'docker/requirements.txt', 'dest': "{{ app_deploy_path }}" }
         - { 'src': 'html/index.html', 'dest': "{{ app_deploy_path }}/templates" }
+        - { 'src': 'css/style.css', 'dest': "{{ app_deploy_path }}/static" }
     
     - name: flask_website_docker | Deploy all config files | Template
       template:
@@ -37,6 +39,7 @@
 - name: flask_website_docker | Run the app
   shell:
     cmd: |
+      /usr/bin/docker-compose build 
       /usr/bin/docker-compose up -d
   args:
     chdir: "{{ app_deploy_path }}"
