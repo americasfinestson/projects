@@ -1,0 +1,39 @@
+---
+
+- name: flask_website_docker | Install Flask
+  pip:
+    name: flask
+    state: present
+
+- name: flask_website_docker | Create temp deploy directory
+  file:
+    path: "{{ app_deploy_path }}"
+    state: directory
+
+- name: flask_website_docker | Deploy all config files
+  block:
+
+    - name: flask_website_docker | Deploy all config files | Copy
+      copy:
+        src: "{{ item }}"
+        dest: "{{ app_deploy_path }}"
+      loop:
+        - 'Dockerfile'
+        - 'requirements.txt'
+    
+    - name: flask_website_docker | Deploy all config files | Template
+      template:
+        src: "{{ item }}"
+        dest: "{{ app_deploy_path }}"
+      loop:
+        - 'app.py'
+        - 'docker-compose.yml'
+
+- name: flask_website_docker | Run the app
+  shell:
+    cmd: |
+      /usr/bin/docker-compose up -d
+  args:
+    chdir: "{{ app_deploy_path }}"
+  become: True
+

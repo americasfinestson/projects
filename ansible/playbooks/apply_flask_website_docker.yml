@@ -1,0 +1,6 @@
+---
+
+- hosts: localhost
+  become: True
+  roles:
+    - flask_website_docker
